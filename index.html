@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<title>안전모드 자가진단 · 비움</title>
+<style>
+  :root{
+    --cream:#FBF8F1; --paper:#FFFFFF; --beige:#F3ECDC; --line:#E7DCC6;
+    --gold:#A8824A; --goldsoft:#C2A56E; --ink:#3A3329; --sub:#857B6A;
+    --sage:#6E8B6A; --sagebg:#E8EEE5; --amber:#C0824A; --amberbg:#F4E7D6;
+    --night:#43506B; --nightbg:#E6E9F0; --nightline:#D7DCE6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:"Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:26px 18px 60px;}
+  .eyebrow{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:700;margin-bottom:14px;}
+  h1{font-size:30px;line-height:1.28;font-weight:800;letter-spacing:-.4px;margin-bottom:14px;}
+  .lead{font-size:15px;color:var(--sub);margin-bottom:22px;}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;}
+  button{font:inherit;cursor:pointer;}
+  .back{background:none;border:none;color:var(--sub);font-size:14px;font-weight:700;
+    padding:0;margin-bottom:18px;display:inline-flex;align-items:center;gap:6px;}
+  .back:hover{color:var(--ink);}
+
+  /* HUB */
+  .hubcard{display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+    background:var(--paper);border:1px solid var(--line);border-radius:18px;
+    padding:20px 18px;margin-bottom:12px;transition:border-color .15s,transform .1s;}
+  .hubcard:hover{border-color:var(--goldsoft);}
+  .hubcard:active{transform:scale(.99);}
+  .hubcard .ic{flex-shrink:0;width:48px;height:48px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .hubcard .ht{display:block;font-size:17px;font-weight:800;margin-bottom:3px;}
+  .hubcard .hd{display:block;font-size:13px;color:var(--sub);line-height:1.5;}
+  .hubcard .ar{margin-left:auto;color:var(--goldsoft);font-size:20px;font-weight:800;flex-shrink:0;}
+
+  /* INTRO boxes */
+  .introbox{border-radius:18px;padding:18px;margin-bottom:24px;border:1px solid var(--line);background:var(--beige);}
+  .introbox .h{font-size:14.5px;font-weight:700;margin-bottom:6px;}
+  .introbox .p{font-size:14.5px;color:#5C5446;}
+  .introbox b{color:var(--ink);}
+  .nightbox{background:var(--nightbg);border:1px solid var(--nightline);border-radius:18px;padding:20px 18px;margin-bottom:24px;}
+  .nightbox .lab{font-size:12px;letter-spacing:1.5px;color:var(--night);font-weight:800;margin-bottom:8px;}
+  .nightbox .p{font-size:14.5px;color:#3F4658;line-height:1.72;}
+  .nightbox .em{color:var(--night);font-weight:800;}
+  .nightbox .div{margin-top:14px;padding-top:12px;border-top:1px solid var(--nightline);
+    font-size:13.5px;color:var(--night);font-weight:700;}
+
+  /* GROUPS / QUESTIONS */
+  .grp{margin-bottom:22px;}
+  .grphead{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .grphead .bar{width:4px;height:16px;border-radius:2px;background:var(--gold);}
+  .grphead .t{font-size:15px;font-weight:800;letter-spacing:.5px;}
+  .seclab{font-size:12px;letter-spacing:1.5px;color:var(--gold);font-weight:800;margin-bottom:14px;}
+  .q{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+    padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink);margin-bottom:8px;transition:background .14s,border-color .14s;}
+  .q .box{flex-shrink:0;width:24px;height:24px;border-radius:7px;border:1.5px solid #D6CBB4;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;
+    color:#fff;margin-top:1px;transition:all .14s;}
+  .q.on{background:var(--beige);border-color:var(--goldsoft);}
+  .q.on .box{background:var(--gold);border-color:var(--gold);}
+  .q .txt{font-size:15px;padding-top:1px;}
+  .q .num{color:var(--sub);font-weight:700;margin-right:7px;}
+
+  /* GAUGE */
+  .gaugewrap{margin-top:4px;}
+  .track{position:relative;height:14px;border-radius:999px;}
+  .marker{position:absolute;top:50%;width:22px;height:22px;border-radius:999px;background:#fff;
+    border:3px solid var(--ink);transform:translate(-50%,-50%);transition:left .28s ease;
+    box-shadow:0 1px 4px rgba(0,0,0,.18);}
+  .glab{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;font-weight:600;color:var(--sub);}
+
+  .meter{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;margin-top:8px;}
+  .meter .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .meter .top .l{font-size:14px;color:var(--sub);font-weight:600;}
+  .meter .top .n{font-size:15px;font-weight:800;}
+  .meter .top .n b{color:var(--gold);font-size:22px;}
+  .meter .top .n span{color:var(--sub);}
+  .cta-btn{margin-top:18px;width:100%;padding:15px;border-radius:14px;border:none;
+    background:var(--ink);color:#F6EFDF;font-size:16px;font-weight:800;letter-spacing:.5px;}
+
+  /* RESULT */
+  .result{margin-top:30px;}
+  .rescard{border-radius:20px;padding:24px 20px;border:1px solid var(--line);}
+  .rescard .k{font-size:12px;letter-spacing:2px;font-weight:800;margin-bottom:8px;}
+  .rescard .tag{font-size:23px;font-weight:800;letter-spacing:-.3px;line-height:1.3;margin-bottom:4px;}
+  .rescard .cnt{font-size:13.5px;color:var(--sub);margin-bottom:16px;}
+  .rescard .body{font-size:15px;color:#544C3E;margin-top:20px;}
+  .step{margin-top:18px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .step .h{font-size:12.5px;letter-spacing:1.5px;color:var(--gold);font-weight:800;margin-bottom:7px;}
+  .step .s{font-size:15px;font-weight:600;}
+  .note{font-size:12.5px;color:var(--sub);margin-top:16px;line-height:1.6;}
+
+  /* ROUTINE (sleep) */
+  .routine{margin-top:24px;}
+  .routine .seclab{margin-bottom:6px;}
+  .routine .sub{font-size:13.5px;color:var(--sub);margin-bottom:14px;}
+  .rrow{display:flex;gap:12px;padding:13px 14px;border-radius:14px;background:var(--paper);
+    border:1px solid var(--line);margin-bottom:8px;}
+  .rrow .num{flex-shrink:0;width:22px;height:22px;border-radius:999px;background:var(--sagebg);
+    color:var(--sage);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .rrow .rt{font-size:14.5px;font-weight:700;}
+  .rrow .rd{display:block;font-size:13px;color:var(--sub);margin-top:2px;}
+  .warn{margin-top:18px;background:#F6EEE9;border:1px solid #E8D8CC;border-radius:16px;padding:16px;}
+  .warn .h{font-size:13px;font-weight:800;color:#A35F3C;margin-bottom:6px;}
+  .warn .p{font-size:13px;color:#6A5A50;line-height:1.6;}
+
+  /* CTA */
+  .follow{margin-top:22px;background:var(--beige);border:1px solid var(--line);border-radius:18px;padding:20px 18px;text-align:center;}
+  .follow .h{font-size:16px;font-weight:800;margin-bottom:6px;}
+  .follow .d{font-size:14px;color:var(--sub);margin-bottom:14px;}
+  .follow a{display:inline-block;background:var(--ink);color:#F6EFDF;border-radius:999px;
+    padding:10px 22px;font-size:15px;font-weight:800;letter-spacing:.5px;text-decoration:none;}
+  .reset{margin-top:16px;width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);
+    background:transparent;color:var(--sub);font-size:14px;font-weight:700;}
+  .foot{margin-top:34px;text-align:center;font-size:12px;color:var(--goldsoft);letter-spacing:1px;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const PAGES = {
+  safety: {
+    eyebrow: "안전모드 연구소 · 자가진단",
+    title: "나는 지금<br>생존모드일까?",
+    lead: "20개 문항. 지금의 나에게 해당되면 가볍게 탭. 끝까지 다 안 맞아도 괜찮아.",
+    icon: "🧭", iconBg: "#F4E7D6",
+    hubTitle: "나는 지금 생존모드일까?",
+    hubDesc: "20문항 · 신경계 과각성 자가진단",
+    intro: '<div class="introbox"><div class="h">먼저, 한 가지만 약속.</div><div class="p">체크가 많아도 네가 고장 난 게 아니야. 그저 네 몸이 오래 안전을 못 느꼈다는 신호일 뿐. <b>비난은 패턴을 반복시키고, 설명은 패턴을 해체하니까.</b> 이건 채점이 아니라 지도야.</div></div>',
+    groups: [
+      ["몸의 신호", ["나도 모르게 어깨가 올라가 있다","턱이나 이를 꽉 물고 있을 때가 많다","숨이 얕고, 나도 모르게 숨을 참는다","쉬어도 몸이 회복되는 느낌이 없다","늘 피곤한데, 머리는 좀처럼 꺼지지 않는다"]],
+      ["잠과 쉼", ["잠들기까지 시간이 오래 걸린다","쉬고 있어도 마음이 불안하다","아무것도 안 하고 가만히 있는 게 어렵다","할 일이 없으면 오히려 불안해진다","좋은 일이 생겨도 마음껏 누리지 못한다"]],
+      ["마음의 경보", ["항상 ‘뭔가 잘못될 것 같은’ 느낌이 든다","작은 일에도 깜짝깜짝 놀란다","실수할까 봐 늘 긴장하고 있다","핸드폰을 의미 없이 계속 확인한다","남들만 잘 지내는 것 같아 자꾸 조급하다"]],
+      ["관계와 주의", ["타인의 시선을 과하게 신경 쓴다","거절을 잘 하지 못한다","사람들과 있다 오면 완전히 방전된다","한 가지에 오래 집중하기 어렵다","멍하니 시간을 흘려보내고 자책한다"]]
+    ],
+    gauge: {left:"안전모드", right:"생존모드", leftColor:"var(--sage)", rightColor:"var(--amber)",
+      grad:"linear-gradient(90deg,var(--sage) 0%,var(--goldsoft) 55%,var(--amber) 100%)"},
+    meterLabel: "지금까지 체크",
+    btn: "결과 보기",
+    resKicker: "나의 지금 상태",
+    result(n){
+      if(n<=6) return {tag:"안전모드에 가까워요",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"지금 너의 몸은 비교적 안전을 느끼고 있어. 가끔 경보가 켜져도 다시 가라앉힐 힘이 남아 있는 상태야. 이 감각을 기억해 둬 — 이게 ‘기준점’이 되니까.",
+        step:"오늘 하루, ‘어, 지금 편안하네’ 싶은 순간 딱 하나만 알아차려 보기."};
+      if(n<=13) return {tag:"한 발은 생존모드",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"위협이 사라졌는데도 경보가 잘 안 꺼지는 상태야. 네가 예민하거나 부족해서가 아니라, 몸이 ‘아직 안심해도 되는지’ 확신을 못 하고 있는 거야. 더 애쓰는 게 아니라, 안전 신호를 더 자주 주는 게 방향이야.",
+        step:"지금 어깨 한 번 툭 내리고, 들숨보다 길게 — 천천히 내쉬는 숨 세 번."};
+      return {tag:"지금, 깊은 생존모드",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"몸이 오래도록 ‘긴장을 풀어도 안전하다’는 신호를 못 받은 것 같아. 이건 네가 고장 난 게 아니야. 이만큼 버텨 온 거야. 필요한 건 채찍이 아니라, 아주 작은 안심 한 조각씩이야.",
+        step:"딱 한 가지만. 발바닥이 바닥에 닿는 감각에 10초 머물기. ‘지금 여긴 안전하다’ 한마디와 함께."};
+    },
+    stepKicker: "지금, 다음 한 걸음",
+    note: "이 체크리스트는 진단이 아니라 자기이해를 돕는 지도예요. 지속적인 불면·불안이나 일상이 무너지는 느낌이 있다면, 혼자 해석하기보다 전문가의 도움을 받는 게 가장 안전한 길이에요.",
+    follow: {h:"생존모드 → 안전모드, 같이 가요", d:"예민한 뇌(HSP·ADHD)를 위한 신경계 안전 연구를 매일 올려요."},
+    foot: "몸이 먼저다 · 신경계가 먼저다 · 안전이 먼저다"
+  },
+
+  hsp: {
+    eyebrow: "안전모드 연구소 · 자가진단",
+    title: "나는<br>예민한 사람일까?",
+    lead: "20개 문항. 평소의 나에게 해당되면 가볍게 탭. 정답도, 합격·불합격도 없어요.",
+    icon: "🌿", iconBg: "#E8EEE5",
+    hubTitle: "나는 예민한 사람일까?",
+    hubDesc: "20문항 · HSP 감각처리민감성 자가진단",
+    intro: '<div class="introbox"><div class="h">먼저, 이건 진단이 아니에요</div><div class="p">예민함은 ‘있다/없다’로 나뉘지 않아요. 누구나 이 연속선 위 어딘가에 있고, 점수는 그 <b>위치를 알려주는 단서</b>일 뿐이에요. 높다고 우월한 것도, 병든 것도 아니에요 — <b>그저 더 깊이 처리한다는 뜻.</b></div></div>',
+    groups: [
+      ["깊이 느끼고 음미한다", ["음악·영화·풍경에 마음이 깊이 흔들릴 때가 있다","작은 디테일이나 미묘한 변화를 남들보다 잘 알아챈다","결정을 내리기 전에 여러 경우를 깊이 곱씹는다","혼자 사색하거나 내면을 들여다보는 시간이 꼭 필요하다","한 공간의 분위기(긴장감·어색함)를 금방 알아챈다"]],
+      ["쉽게 가득 찬다", ["한꺼번에 많은 일이 닥치면 머리가 금방 가득 찬다","짧은 시간에 할 일이 몰리면 압도당하는 느낌이 든다","시끄럽고 붐비는 곳에 오래 있으면 진이 빠진다","바쁜 하루 뒤엔 혼자 조용히 회복할 시간이 절실하다","갑작스러운 변화에 적응하는 데 시간이 더 걸린다"]],
+      ["감각이 섬세하다", ["밝은 빛·큰 소리·강한 냄새가 남들보다 거슬린다","옷의 촉감·태그·소재에 예민하게 반응한다","배고픔·카페인·통증 같은 몸의 신호에 크게 반응한다","시계 초침, 형광등 같은 미묘한 자극도 신경이 쓰인다","온도·조명이 조금만 달라도 금방 알아챈다"]],
+      ["감정과 공감이 깊다", ["남이 힘들어하면 내 일처럼 깊이 영향을 받는다","비판이나 지적을 오래 곱씹고 마음에 담아둔다","감동적인 이야기에 쉽게 눈물이 난다","갈등 상황의 긴장을 누구보다 빨리 감지한다","좋은 것도 나쁜 것도, 남들보다 더 진하게 느낀다"]]
+    ],
+    gauge: {left:"덜 민감", right:"더 깊이 처리", leftColor:"var(--sub)", rightColor:"var(--gold)",
+      grad:"linear-gradient(90deg,var(--goldsoft) 0%,var(--gold) 100%)"},
+    meterLabel: "지금까지 체크",
+    btn: "결과 보기",
+    resKicker: "연속선 위, 나의 위치",
+    resKickerColor: "var(--sage)", resBg:"var(--sagebg)",
+    result(n){
+      if(n<=7) return {tag:"연속선의 한쪽 — 덜 민감한 편",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"지금의 너는 자극을 비교적 가볍게 흘려보내는 쪽이야. 이건 ‘둔하다’가 아니라 그냥 다른 위치야. 예민함은 있고/없고로 나뉘지 않고, 누구나 이 선 위 어딘가에 있어. 네 자리는 여기쯤이라는 단서일 뿐.",
+        step:"‘덜 예민해서 좋다/나쁘다’가 아니라, 내가 어떤 자극에 잘 차고 잘 차지 않는지 한 가지만 적어보기."};
+      if(n<=14) return {tag:"중간 어디쯤 — 상황 따라 달라지는",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"어떤 날은 무던하고, 어떤 날은 작은 것에도 크게 출렁이지? 대부분의 사람이 이 구간에 있어(연구상 가장 넓은 그룹). 핵심은 ‘나는 예민한 사람인가?’가 아니라 ‘어떤 상황에서 빨리 차오르나, 그래서 무엇을 설계할까’야.",
+        step:"최근 ‘가득 찼던’ 순간 하나를 떠올려, 그때의 자극이 빛·소리·사람·정보 중 무엇이었는지 짚어보기."};
+      return {tag:"깊이 처리하는 편 — 고민감",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"너는 세상을 더 깊이 받아들이고, 더 진하게 느끼는 신경계를 가졌어. 이건 고칠 결함이 아니야. 같은 예민함이 위협 속에선 ‘압도’가 되고, 안전 속에선 ‘통찰·공감·예술’이 돼. 네가 할 일은 감도를 깎는 게 아니라, 그 감도가 선물이 될 환경을 만드는 거야.",
+        step:"오늘 자극을 ‘하나만’ 줄여보기 — 알림 끄기, 조명 낮추기, 사람 만난 뒤 30분 혼자 회복하기 중 하나."};
+    },
+    stepKicker: "라벨이 아니라, 단서로 쓰기",
+    note: "예민함(감각처리민감성)은 진단명도, 질병도 아니에요. 이 체크는 자기이해를 돕는 질문지일 뿐, 점수 하나를 ‘정체성’으로 굳히지 마세요. 일상에 지장을 줄 만큼의 불안·우울·주의력 문제가 지속된다면, 전문가의 평가를 받는 게 가장 안전한 길이에요.",
+    follow: {h:"예민함을 ‘잘 쓰는 법’, 같이 배워요", d:"감도를 깎는 대신, 그것이 선물이 되는 신경계를 설계하는 연구를 매일 올려요."},
+    foot: "예민함은 결함이 아니라, 다르게 연결된 신경계"
+  },
+
+  sleep: {
+    eyebrow: "안전모드 연구소 · 수면 회복",
+    title: "잠은<br>고장나지 않는다",
+    lead: "밤에 잠 안 오는 이유부터, 신경계 상태 점검, 자기 전 루틴까지.",
+    icon: "🌙", iconBg: "#E6E9F0",
+    hubTitle: "잠은 고장나지 않는다",
+    hubDesc: "15문항 · 불면·과각성 점검 + 자기 전 루틴",
+    introBlock: '<div class="nightbox"><div class="lab">① 밤에 잠이 안 오는 진짜 이유</div><div class="p">잠은 밤에 망가지지 않아요. <span class="em">낮에 만들어져요.</span> 하루 종일 긴장하고 걱정하며 액셀을 밟던 신경계는, 밤 11시에 갑자기 멈추지 못해요. 새벽 2시에 머리가 환해지는 건 그 ‘관성’이에요. 게으름도 의지 부족도 아니에요 — 신경계가 아직 “이제 안전해”라는 신호를 못 받은 것뿐.</div><div class="div">그래서 잠은 ‘해내는 일’이 아니라, 안전해진 몸이 도달하는 상태예요.</div></div>',
+    introSecLabel: "② 신경계 상태 점검 · 해당되면 탭",
+    groups: [
+      ["밤 — 누웠을 때", ["몸은 피곤한데, 누우면 머리가 환해진다","자려고 애쓸수록 더 말똥말똥해진다","잠들기까지 30분 이상 걸린다","자다가 자주 깨고, 다시 잠들기 어렵다","시계를 보며 ‘몇 시간 남았지’ 계산한다"]],
+      ["낮 — 깨어 있을 때", ["하루 종일 긴장이 잘 풀리지 않는다","쉬는 시간에도 뭔가 해야 할 것 같다","작은 일에도 생각이 꼬리에 꼬리를 문다","카페인에 남들보다 예민하게 반응한다","늘 피곤한데, 깊이 쉰 느낌이 없다"]],
+      ["습관 — 잠을 대하는 방식", ["‘잘 자야 한다’는 압박을 느낀다","침대에서 폰을 오래 본다","자기 직전까지 일·자극적인 콘텐츠를 본다","기상 시각이 매일 들쭉날쭉하다","‘오늘도 못 자면 어쩌지’ 미리 걱정한다"]]
+    ],
+    gauge: {left:"잠드는 몸", right:"깨어있는 신경계", leftColor:"var(--sage)", rightColor:"var(--amber)",
+      grad:"linear-gradient(90deg,var(--sage) 0%,var(--goldsoft) 50%,var(--amber) 100%)"},
+    meterLabel: "과각성 신호",
+    btn: "결과 + 자기 전 루틴 보기",
+    resKicker: "지금 내 신경계 상태",
+    result(n){
+      if(n<=4) return {tag:"잠과 비교적 친한 신경계",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"지금은 신경계가 밤에 비교적 잘 ‘감속’하는 상태예요. 가끔 못 자는 밤이 있어도, 다시 돌아올 힘이 있어요. 이 리듬을 지켜주는 게 핵심 — 특히 일정한 기상 시각."};
+      if(n<=9) return {tag:"과각성이 잠을 밀어내는 중",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"낮 동안 켜진 신경계가 밤이 돼도 잘 안 꺼지는 상태예요. ‘잘 자려는 노력’이 오히려 각성을 더하기도 해요. 더 세게 붙잡지 말고, 낮부터 몸에 ‘안전하다’ 신호를 자주 주는 쪽으로."};
+      return {tag:"깊은 과각성 — 낮부터 경보가 안 꺼짐",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"잠이 고장 난 게 아니에요. 섬세한 신경계가 너무 오래, 너무 열심히 일한 결과예요. 밤이 아니라 ‘하루 전체’를 다시 보는 게 출발점. 아래 루틴을 한 번에 다 말고, 딱 하나부터."};
+    },
+    routine: {
+      label: "③ 신경계에 ‘안전’을 알려주는 루틴",
+      sub: "다 하려 하지 말고, 오늘은 딱 하나만.",
+      items: [
+        ["기상 시각을 고정한다","주말도 같은 시각에. 가장 강력한 닻이에요."],
+        ["일어나면 10분 안에 빛을 본다","가능하면 야외에서. 밤의 졸음은 아침에 예약돼요."],
+        ["카페인은 오후 1~2시 이후 끊는다","반감기가 길어 밤까지 남아 신경계를 켜둬요."],
+        ["자기 1~2시간 전, 미지근한 샤워 + 서늘한 방","체온이 내려가며 잠 신호가 켜져요."],
+        ["침대는 잠자는 곳으로만","15~20분 안 오면 일어나 나갔다가, 졸리면 돌아오기."],
+        ["잠들기 전, 긴 날숨 호흡 10번","들숨보다 길게 내쉬기. 몸에 ‘감속’ 신호예요."],
+        ["걱정은 종이에 적어 ‘내일의 나’에게 넘긴다","머릿속 줄 선 생각을 밖에 내려놓기."]
+      ]
+    },
+    warn: '<div class="warn"><div class="h">이건 자가관리보다 진료가 먼저예요</div><div class="p">3개월 이상 지속되는 불면 · 심한 코골이나 자다 숨이 멈춘다는 말을 들음 · 낮에 주체할 수 없는 졸림 · 다리가 근질거려 잠들기 힘듦 · 심한 우울·불안. 이런 신호는 ‘의지’로 넘기지 마세요.</div></div>',
+    note: "이 가이드는 정보 제공용이며 의학적 진단·치료를 대신하지 않아요. 수면 문제가 일상을 무너뜨릴 정도라면 반드시 전문가의 평가를 받기를 권해요.",
+    follow: {h:"잘 자는 법이 아니라, 안전해지는 법", d:"신경계를 안전모드로 데려가는 수면 회복 연구를 매일 올려요."},
+    foot: "잘 자려고 애쓰지 말기 · 몸이 안전하면 잠은 따라온다"
+  },
+
+  adhd: {
+    eyebrow: "안전모드 연구소 · 자가진단",
+    title: "왜 나는<br>시작이 안 될까?",
+    lead: "20개 문항 · ADHD 성향 자가체크. 평소의 나에게 해당되면 가볍게 탭. 이건 진단이 아니에요.",
+    icon: "\u26a1", iconBg: "#F4E7D6",
+    hubTitle: "왜 나는 시작이 안 될까?",
+    hubDesc: "20문항 · ADHD 성향 자가체크 (진단 아님)",
+    intro: '<div class="introbox"><div class="h">먼저, 이건 진단이 아니에요</div><div class="p">ADHD는 자가체크로 가릴 수 없는 신경발달 조건이에요. 이 질문지는 ‘혹시 내 어려움이 여기서 오나?’를 살펴보는 <b>출발점</b>일 뿐이에요. 체크가 많아도 네가 게으르거나 부족한 게 아니라 — <b>뇌가 조금 다르게 조율됐다는 단서</b>일 수 있어요.</div></div>',
+    groups: [
+      ["시작과 마무리", ["해야 하는 걸 알면서도 시작 자체가 잘 안 된다","마감이 코앞에 와야 비로소 엔진이 켜진다","흥미 있는 일엔 폭발적인데, 지루한 일은 손도 못 댄다","여러 가지를 벌여놓고 끝맺지 못한 채 쌓여간다","쉬운 일도 ‘나중에’ 미루다 마음의 짐이 된다"]],
+      ["주의와 집중", ["집중하려는 순간 마음이 자꾸 딴 데로 샌다","책·영상·대화에서 방금 내용을 놓칠 때가 많다","한 가지에 빠지면 시간 가는 줄 모른다(과몰입)","사소한 소리·움직임에도 주의가 쉽게 흩어진다","머릿속에 생각이 여러 개 동시에 돌아간다"]],
+      ["기억과 정리", ["열쇠·폰·지갑을 어디 뒀는지 자주 잊는다","약속·할 일을 까먹어서 알림에 의존한다","방금 하려던 걸 까먹고 멍해질 때가 있다","정리를 시작하면 어디서부터 할지 막막하다","대화 중 할 말이 떠올랐다가 순식간에 사라진다"]],
+      ["시간·충동·감정", ["시간 감각이 무뎌서 늘 늦거나 빠듯하다","생각보다 말·행동이 먼저 튀어나온다","작은 일에도 감정이 확 올라왔다 빠르게 가라앉는다","기다리는 것·지루한 것을 못 견딘다","지적이나 거절에 남보다 크게 흔들린다"]]
+    ],
+    gauge: {left:"특성 약함", right:"특성 두드러짐", leftColor:"var(--sub)", rightColor:"var(--gold)",
+      grad:"linear-gradient(90deg,var(--goldsoft) 0%,var(--gold) 100%)"},
+    meterLabel: "지금까지 체크",
+    btn: "결과 보기",
+    resKicker: "나의 지금 결",
+    result(n){
+      if(n<=7) return {tag:"ADHD 특성이 약한 편",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"지금의 너는 주의·시작·마무리가 비교적 안정적인 편이야. 누구나 가끔 산만하고 미루지만, 그게 일상을 막을 정도는 아니라는 신호야.",
+        step:"컨디션이 좋을 때·나쁠 때 집중력 차이를 그냥 관찰해보기. 환경이 집중을 얼마나 좌우하는지 느껴보기."};
+      if(n<=14) return {tag:"일부 특성이 보이는 편",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"어떤 영역은 괜찮은데, 시작·주의·시간 감각 같은 곳에서 결이 드러나는 상태일 수 있어. 스트레스·수면 부족·과로가 이런 특성을 더 진하게 만들기도 해. 핵심은 ‘고치기’가 아니라 ‘설계하기’야.",
+        step:"가장 자주 막히는 일 하나를 골라, 그걸 ‘10분짜리 첫 조각’으로 쪼개보기."};
+      return {tag:"특성이 두드러지는 편",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"시작이 안 되고, 마음이 새고, 흥미 앞에서만 켜지는 그 경험 — 인격의 흠이 아니라 다르게 조율된 뇌의 정직한 작동일 수 있어. 다만 이 점수는 진단이 아니야. 일·관계·일상에 지속적인 지장이 있다면, 정확한 길은 전문가 평가야.",
+        step:"의지로 쥐어짜기 전에, 구조 하나 만들기 — 타이머 25분, 할 일 한 줄로 쪼개기, 눈에 보이는 곳에 메모. 그리고 전문가 상담을 한번 고려해봐."};
+    },
+    stepKicker: "고치기가 아니라, 설계하기",
+    note: "ADHD는 자가체크로 진단할 수 없는 신경발달 조건이에요. 이 체크는 ‘혹시 내 어려움이 여기서 오나?’를 살펴보는 출발점일 뿐이에요. 일·관계·일상에 지속적인 지장이 있다면 정신건강의학과 전문의의 평가를 받는 것이 가장 정확하고 안전한 길이에요.",
+    follow: {h:"고치는 뇌가 아니라, 설계하는 뇌", d:"다르게 연결된 뇌를 의지로 쥐어짜는 대신 시스템으로 설계하는 법을 매일 올려요."},
+    foot: "내 뇌는 고장 난 게 아니다 · 다르게 조율됐을 뿐"
+  },
+
+  auto: {
+    eyebrow: "안전모드 연구소 · 자가진단",
+    title: "왜 쉬어도<br>몸이 안 풀릴까?",
+    lead: "20개 문항 · 자율신경 균형 자가체크. 평소의 나에게 해당되면 가볍게 탭. 이건 진단이 아니에요.",
+    icon: "\u2696\ufe0f", iconBg: "#E8EEE5",
+    hubTitle: "왜 쉬어도 몸이 안 풀릴까?",
+    hubDesc: "20문항 · 자율신경 균형 자가체크 (진단 아님)",
+    intro: '<div class="introbox"><div class="h">먼저, 이건 진단이 아니에요</div><div class="p">자율신경은 내 의지 바깥에서 심장·소화·체온·호흡을 조절하는 자동 시스템이에요. 교감(액셀)과 부교감(브레이크)의 <b>균형</b>이 핵심이죠. 검사하면 정상인데 몸은 불편한 건, 장기 하나가 고장 나서가 아니라 <b>그 전부를 조율하는 시스템의 균형이 기울었기 때문</b>일 수 있어요. 고장이 아니라 균형의 문제예요.</div></div>',
+    groups: [
+      ["몸이 보내는 신호", ["푹 쉬어도 피로가 좀처럼 풀리지 않는다","손발이 자주 차고, 목·어깨가 늘 뭉쳐 있다","머리가 자주 아프거나 뒷목이 뻣뻣하다","이유 없이 가슴이 두근대거나 숨이 얕아진다","속이 더부룩하고, 변비와 설사를 오간다"]],
+      ["리듬이 흔들린다", ["잠들기 어렵거나 밤에 자주 깬다","아침에 일어나도 개운하지 않다","식욕이 들쭉날쭉하고 소화가 잘 안 된다","덥지 않은데 식은땀이 나거나 얼굴만 화끈거린다","날씨·환경이 조금만 바뀌어도 컨디션이 휘청한다"]],
+      ["마음과 머리", ["특별한 일이 없는데 불안하거나 초조하다","작은 일에도 짜증이 확 올라온다","의욕이 안 생기고 뭘 해도 재미가 없다","집중이 흐트러지고 자주 깜빡한다","쉬는 날에도 마음이 잘 놓이지 않는다"]],
+      ["몸이 켜져 있다", ["나도 모르게 늘 어딘가 힘이 들어가 있다","작은 소리·자극에도 깜짝 놀란다","스트레스를 받으면 마음보다 몸이 먼저 반응한다","카페인·약·자극에 남보다 예민하게 반응한다","검사하면 별 이상 없다는데, 몸은 계속 불편하다"]]
+    ],
+    gauge: {left:"균형 잡힘", right:"한쪽으로 기움", leftColor:"var(--sage)", rightColor:"var(--amber)",
+      grad:"linear-gradient(90deg,var(--sage) 0%,var(--goldsoft) 50%,var(--amber) 100%)"},
+    meterLabel: "지금까지 체크",
+    btn: "결과 보기",
+    resKicker: "지금 내 자율신경",
+    result(n){
+      if(n<=6) return {tag:"비교적 균형 잡힌 편",tone:"var(--sage)",bg:"var(--sagebg)",
+        body:"지금은 교감과 부교감이 비교적 잘 오가는 상태예요. 가끔 몸이 신호를 보내도 다시 가라앉힐 힘이 있어요. 규칙적인 기상·수면 리듬으로 이 균형을 지켜주세요.",
+        step:"오늘 ‘몸이 편안하다’ 느낀 순간 하나를 알아차려, 그때 무엇이 달랐는지 기억해두기."};
+      if(n<=13) return {tag:"균형이 한쪽으로 기우는 중",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"위협이 없는데도 액셀(교감)이 잘 안 꺼지는 상태일 수 있어요. 증상이 몸 여기저기 흩어져 나타나는 건, 자율신경이 ‘전신을 조율하는’ 시스템이기 때문이에요. 고장이 아니라, 브레이크(부교감)를 켜주는 게 방향이에요.",
+        step:"들숨보다 길게 — 천천히 내쉬는 숨 10번. 자율신경은 의지로 못 켜지만, 긴 날숨엔 반응해요."};
+      return {tag:"오래 긴장 모드에 머문 편",tone:"var(--amber)",bg:"var(--amberbg)",
+        body:"한 장기가 고장 난 게 아니라, 그 전부를 조율하는 시스템이 오래 기울어 있었던 것 같아요. 다만 이 점수는 진단이 아니에요. 비슷한 증상이 갑상선·빈혈·심장 같은 다른 원인일 수도 있으니, 지속된다면 병원에서 그 가능성부터 확인하는 게 안전해요.",
+        step:"머리로 진정시키려 애쓰는 대신, 몸에 브레이크 신호를 — 긴 날숨, 따뜻한 샤워, 아침 햇빛, 일정한 기상 시각. 그리고 증상이 오래간다면 진료를 한번 받아봐."};
+    },
+    stepKicker: "의지가 아니라, 몸에 신호 보내기",
+    note: "자율신경 증상은 갑상선·빈혈·심장 질환 등 다른 원인과 겹칠 수 있어요. 그래서 ‘자율신경 탓’으로 단정하기보다, 아래 신호가 있으면 병원 평가가 먼저예요 — 일어설 때 반복되는 심한 어지럼·실신, 가슴 통증·호흡곤란, 설명 없이 지속되는 만성 통증·피로, 일상이 무너질 정도의 증상. 이 체크는 진단이 아니라 자기이해를 돕는 지도예요.",
+    follow: {h:"고장이 아니라, 균형 — 다시 맞추는 법", d:"교감과 부교감 사이 유연함을 되찾는 자율신경 회복 연구를 매일 올려요."},
+    foot: "당신의 몸은 고장난 게 아니다 · 균형이 기울었을 뿐"
+  }
+};
+
+const HANDLE_URL = "https://www.threads.net/@emotion_lab_bium";
+const HANDLE = "@emotion_lab_bium";
+
+/* ============ STATE ============ */
+const state = { safety:new Set(), hsp:new Set(), sleep:new Set(), adhd:new Set(), auto:new Set(), shown:{} };
+
+/* ============ HELPERS ============ */
+const el = (s)=>document.getElementById(s);
+const total = (p)=> p.groups.reduce((n,g)=>n+g[1].length,0);
+
+function gaugeHTML(p, ratio){
+  const pct = Math.round(ratio*100);
+  return `<div class="gaugewrap">
+    <div class="track" style="background:${p.gauge.grad}">
+      <div class="marker" style="left:${pct}%"></div>
+    </div>
+    <div class="glab">
+      <span style="color:${p.gauge.leftColor};font-weight:700">${p.gauge.left}</span>
+      <span style="color:${p.gauge.rightColor};font-weight:700">${p.gauge.right}</span>
+    </div>
+  </div>`;
+}
+
+/* ============ HUB ============ */
+function renderHub(){
+  const order = ["safety","auto","sleep","hsp","adhd"];
+  let cards = order.map(k=>{
+    const p = PAGES[k];
+    return `<button class="hubcard" onclick="location.href='${k}.html'">
+      <span class="ic" style="background:${p.iconBg}">${p.icon}</span>
+      <span><span class="ht">${p.hubTitle}</span><span class="hd">${p.hubDesc}</span></span>
+      <span class="ar">→</span>
+    </button>`;
+  }).join("");
+  el("app").innerHTML = `
+    <div class="eyebrow">안전모드 연구소 · 비움</div>
+    <h1>지금 내 신경계는<br>어디에 있을까?</h1>
+    <p class="lead">예민한 뇌(HSP·ADHD)를 위한 신경계 자가진단. 궁금한 걸 하나 골라보세요.</p>
+    ${cards}
+    <div class="follow" style="margin-top:24px">
+      <div class="h">매일의 안전모드 연구</div>
+      <div class="d">생존모드를 비우고, 안전모드를 채우는 법을 매일 올려요.</div>
+      <a href="${HANDLE_URL}" target="_blank" rel="noopener">${HANDLE}</a>
+    </div>
+    <div class="foot">몸이 먼저다 · 신경계가 먼저다 · 안전이 먼저다</div>`;
+  window.scrollTo(0,0);
+}
+
+/* ============ CHECK PAGE ============ */
+function renderPage(key){
+  const p = PAGES[key];
+  const set = state[key];
+  const t = total(p);
+
+  let qhtml = "";
+  let idx = 0;
+  if(p.introSecLabel) qhtml += `<div class="seclab">${p.introSecLabel}</div>`;
+  p.groups.forEach(([label, items])=>{
+    qhtml += `<div class="grp"><div class="grphead"><span class="bar"></span><span class="t">${label}</span></div>`;
+    items.forEach(text=>{
+      idx++;
+      const num = idx<10 ? "0"+idx : ""+idx;
+      const on = set.has(idx);
+      qhtml += `<button class="q ${on?'on':''}" onclick="toggle('${key}',${idx})">
+        <span class="box">${on?'✓':''}</span>
+        <span class="txt"><span class="num">${num}</span>${text}</span>
+      </button>`;
+    });
+    qhtml += `</div>`;
+  });
+
+  const count = set.size;
+  const ratio = count/t;
+
+  el("app").innerHTML = `
+    <button class="back" onclick="go('')">← 전체 진단</button>
+    <div class="eyebrow">${p.eyebrow}</div>
+    <h1>${p.title}</h1>
+    <p class="lead">${p.lead}</p>
+    ${p.intro||""}
+    ${p.introBlock||""}
+    ${qhtml}
+    <div class="meter">
+      <div class="top">
+        <span class="l">${p.meterLabel}</span>
+        <span class="n"><b id="cnt">${count}</b><span> / ${t}</span></span>
+      </div>
+      <div id="gauge">${gaugeHTML(p, ratio)}</div>
+      <button class="cta-btn" onclick="showResult('${key}')">${p.btn}</button>
+    </div>
+    <div id="resultSlot"></div>
+    <div class="foot">${p.foot}</div>`;
+
+  if(state.shown[key]) injectResult(key);
+  window.scrollTo(0,0);
+}
+
+function toggle(key, i){
+  const set = state[key];
+  set.has(i) ? set.delete(i) : set.add(i);
+  const p = PAGES[key];
+  // update only the toggled button + meter (no full re-render = keeps scroll)
+  const btns = document.querySelectorAll('.q');
+  const on = set.has(i);
+  // find by index order
+  let idx=0;
+  document.querySelectorAll('.q').forEach(b=>{
+    idx++;
+    if(idx===i){
+      b.classList.toggle('on', on);
+      b.querySelector('.box').textContent = on?'✓':'';
+    }
+  });
+  el("cnt").textContent = set.size;
+  el("gauge").innerHTML = gaugeHTML(p, set.size/total(p));
+}
+
+function showResult(key){
+  state.shown[key] = true;
+  injectResult(key);
+  el("resultSlot").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function injectResult(key){
+  const p = PAGES[key];
+  const set = state[key];
+  const t = total(p);
+  const count = set.size;
+  const r = p.result(count);
+
+  let extra = "";
+  if(p.routine){
+    let rit = p.routine.items.map((it,i)=>`
+      <div class="rrow"><span class="num">${i+1}</span>
+        <span><span class="rt">${it[0]}</span><span class="rd">${it[1]}</span></span></div>`).join("");
+    extra = `<div class="routine">
+      <div class="seclab">${p.routine.label}</div>
+      <div class="sub">${p.routine.sub}</div>${rit}</div>${p.warn||""}`;
+  } else {
+    extra = `<div class="step"><div class="h">${p.stepKicker}</div><div class="s">${r.step}</div></div>`;
+  }
+
+  el("resultSlot").innerHTML = `
+    <div class="result">
+      <div class="rescard" style="background:${r.bg}">
+        <div class="k" style="color:${r.tone}">${p.resKicker}</div>
+        <div class="tag">${r.tag}</div>
+        <div class="cnt">${t}개 중 ${count}개 ${key==='sleep'?'해당':'체크'}</div>
+        ${gaugeHTML(p, count/t)}
+        <div class="body">${r.body}</div>
+        ${p.routine ? "" : `<div class="step"><div class="h">${p.stepKicker}</div><div class="s">${r.step}</div></div>`}
+      </div>
+      ${p.routine ? extra : ""}
+      <div class="note">${p.note}</div>
+      <div class="follow">
+        <div class="h">${p.follow.h}</div>
+        <div class="d">${p.follow.d}</div>
+        <a href="${HANDLE_URL}" target="_blank" rel="noopener">${HANDLE}</a>
+      </div>
+      <button class="reset" onclick="resetPage('${key}')">다시 해보기</button>
+    </div>`;
+}
+
+function resetPage(key){
+  state[key] = new Set();
+  state.shown[key] = false;
+  renderPage(key);
+}
+
+
+renderHub();
+</script>
+</body>
+</html>
